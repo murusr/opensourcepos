@@ -147,12 +147,22 @@
 					<?php if (!currency_side()): ?>
 						<span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
 					<?php endif; ?>
+					<?php /*muru*/if ($this->session->userdata('person_id') == 458){ ?>
 					<?php echo form_input(array(
 							'name'=>'cost_price',
 							'id'=>'cost_price',
 							'class'=>'form-control input-sm',
+							'type'=>'hidden',					
 							'value'=>to_currency_no_money($item_info->cost_price))
 							);?>
+					<?php } else { ?>
+					<?php echo form_input(array(
+						'name'=>'cost_price',
+						'id'=>'cost_price',
+						'class'=>'form-control input-sm',	
+						'value'=>to_currency_no_money($item_info->cost_price))
+						);?>		
+					<?PHP } ?>
 					<?php if (currency_side()): ?>
 						<span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
 					<?php endif; ?>

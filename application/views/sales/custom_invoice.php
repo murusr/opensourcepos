@@ -25,30 +25,13 @@
 		<div id="sale_receipt"><?php echo $this->lang->line('sales_receipt'); ?></div>
 		<div id="sale_time"><?php echo $transaction_time ?></div>
 	</div>
-		<?PHP
-			$_hasCI = false;
-			$_hasrice = false;
-			foreach($cart as $line=>$item)
-			{
-				if(substr( $item['item_category'], 0, 4 )=='Rice' )
-				{
-					$_hasrice = true;
-				}
-				elseif(substr( $item['item_category'], 0, 12 )=='Control Item' )
-				{
-					$_hasCI = true;
-				}
-			}
-			
-		?>
+
 	<div id="receipt_general_info">
 		<?php
 		if(isset($customer))
 		{
-			$nm = !$_hasrice? $customer : "Walk-in";
-			$nm = !$_hasCI? $nm : $tax_id;
 		?>
-			<div id="customer"><?php echo $this->lang->line('customers_customer').": ".$nm; ?></div>
+			<div id="customer"><?php echo $this->lang->line('customers_customer').": ".$customer; ?></div>
 		<?php
 		}
 		?>
@@ -74,25 +57,13 @@
 			<th colspan="4" style="width:25%;" class="total-value"><?php echo $this->lang->line('sales_total'); ?></th>
 		</tr>
 		<?php
-		//muru add line item and qty count
-		$count_items = 0;
-		$count_qty = 0;
-		//muru add line item and qty count end
 		foreach($cart as $line=>$item)
 		{
-		//muru add line item and qty count
-		$count_items++;
-		$count_qty = $count_qty + $item['quantity'];
-		//muru add line item and qty count end
 		?>
 			<tr>
 				<td><?php echo ucfirst($item['name'] . ' ' . $item['attribute_values']); ?></td>
-				<!-- muru show unit price-->
-				<!-- original <td><?php //echo to_quantity_decimals($item['quantity']); ?></td> -->
-				<!-- <td class="total-value"><?php //echo to_currency($item[($this->config->item('receipt_show_total_discount') ? 'total' : 'discounted_total')]); ?></td> -->
-				<td><?php echo to_quantity_decimals($item['quantity']).' x '.to_currency($item['price']); ?></td>				
-				<td class="total-value" style="font-weight: bold;" ><?php echo to_currency($item[($this->config->item('receipt_show_total_discount') ? 'total' : 'discounted_total')]); ?></td>
-				<!-- muru show unit price-->
+				<td><?php echo to_quantity_decimals($item['quantity']); ?></td>
+				<td class="total-value"><?php echo to_currency($item[($this->config->item('receipt_show_total_discount') ? 'total' : 'discounted_total')]); ?></td>
 			</tr>
 			<tr>
 				<?php
@@ -186,7 +157,7 @@
 		<?php $border = (!$this->config->item('receipt_show_taxes') && !($this->config->item('receipt_show_total_discount') && $discount > 0)); ?>
 		<tr>
 			<td colspan="2" style="text-align:right;<?php echo $border? 'border-top: 2px solid black;' :''; ?>"><?php echo $this->lang->line('sales_total'); ?></td>
-			<td style="text-align:right;font-size:14px;<?php echo $border? 'border-top: 2px solid black;' :''; ?>"><b><?php echo to_currency($total); ?></b></td>
+			<td style="text-align:right;<?php echo $border? 'border-top: 2px solid black;' :''; ?>"><?php echo to_currency($total); ?></td>
 		</tr>
 
 
@@ -223,24 +194,13 @@
 			<td class="total-value"><?php echo to_currency($amount_change); ?></td>
 		</tr>
 	</table>
-	<!-- muru add line item and qty count -->
-	<div id="sale_return_policy" style="font-weight: bold;">
-		<?php echo "Total Lines:".$count_items ?>
-	</div>
-	<div id="sale_return_policy" style="font-weight: bold;">
-		<?php echo "Total Items:".to_quantity_decimals($count_qty) ?>
-	</div>
-	<!-- muru add line item and qty count end -->
+
 	<div id="sale_return_policy">
 		<?php echo nl2br($this->config->item('return_policy')); ?>
 	</div>
 
-	<!--<div id="barcode">
+	<div id="barcode">
 		<img src='data:image/png;base64,<?php echo $barcode; ?>' /><br>
-		<?php //echo $sale_id; ?>
-	</div>-->
+		<?php echo $sale_id; ?>
+	</div>
 </div>
-
-
-<div class="page-break"></div>
-

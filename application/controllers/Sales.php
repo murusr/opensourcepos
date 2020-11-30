@@ -451,7 +451,79 @@ class Sales extends Secure_Controller
 		}
 		else
 		{
-			if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, $discount_type, PRICE_MODE_STANDARD))
+			//Muru get last given price for same customer
+			$item_info = $this->Item->get_info_by_id_or_number($item_id_or_number_or_item_kit_or_receipt, false);
+			//echo( 'muru'.$item_info->item_id);
+			$lastsaleitem = $this->Sale->get_sale_items_by_customer_item($customer_id,$item_info->item_id);
+			$price_override = NULL;
+			//echo 'hi test11'.count($lastsaleitem);
+			//echo $lastsaleitem == NULL;
+			//echo 'hi test11'.$customer_id.'_'.$item_id_or_number_or_item_kit_or_receipt.'_';
+			if( $lastsaleitem != NULL && count($lastsaleitem->result())>0)
+			{			
+				foreach ($lastsaleitem->result() as $row)
+				{
+					/*//scenario 1 : cost price increased
+					// hence adjust the unit price with same margin $$ considering new price
+					if($row->si_cost_price < $row->cost_price)
+					{
+						$diff = $row->si_unit_price - $row->si_cost_price;
+						$priceoverride = min($row->cost_price+abs($diff),$row->unit_price);
+					}
+					//scenario 2 : cost price didnt change, however unit price changed, hence respect the new unit price
+					//invalid due to unit price will always be diffrent if customer get speacial discount
+					/*else if($row->si_cost_price == $row->cost_price && $row->si_unit_price < $row->unit_price)
+					{
+						$priceoverride = $row->unit_price;
+					}*/
+					//else
+					//mz special 
+					if( $customer_id == 62)
+					{
+						$priceoverride = $row->cost_price+.10;
+					}
+					elseif( $customer_id == 229 || $customer_id == 230)
+					{
+						$priceoverride = $row->cost_price;
+					}
+					//19-1-20 if cost price same give same price. If cost price diff then give highest price between given price and current sale price
+					elseif(  substr($row->category,strlen($row->category)-1,1) != "$" )
+					{
+						if( $row->si_unit_price > $row->cost_price )
+						{
+							$priceoverride = $row->si_unit_price;
+						}
+						else
+						{
+							$priceoverride = max( $row->si_unit_price, $row->unit_price );
+						}
+					}
+				}
+			}
+			//mz special 
+			elseif( $customer_id == 62)
+			{
+				//echo 'hi test';
+				//$item_info = $this->Item->get_info_by_id_or_number($item_id_or_number_or_item_kit_or_receipt, false);
+
+				if( $item_info != NULL &&  $item_info->cost_price > 0)
+				{
+					$priceoverride = $item_info->cost_price+.1;
+				}
+			}
+			elseif( $customer_id == 229 || $customer_id == 230)
+			{
+				//$item_info = $this->Item->get_info_by_id_or_number($item_id_or_number_or_item_kit_or_receipt, false);
+
+				if( $item_info != NULL &&  $item_info->cost_price > 0)
+				{
+					$priceoverride = $item_info->cost_price;
+				}
+			}
+			//end muru get last given price for same customer
+			//muru original
+			//if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, $discount_type, PRICE_MODE_STANDARD))
+			if(!$this->sale_lib->add_item($item_id_or_number_or_item_kit_or_receipt, $quantity, $item_location, $discount, $discount_type, PRICE_MODE_STANDARD, NULL, NULL,$priceoverride ))
 			{
 				$data['error'] = $this->lang->line('sales_unable_to_add_item');
 			}

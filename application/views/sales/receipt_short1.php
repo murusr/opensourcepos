@@ -25,30 +25,13 @@
 		<div id="sale_receipt"><?php echo $this->lang->line('sales_receipt'); ?></div>
 		<div id="sale_time"><?php echo $transaction_time ?></div>
 	</div>
-		<?PHP
-			$_hasCI = false;
-			$_hasrice = false;
-			foreach($cart as $line=>$item)
-			{
-				if(substr( $item['item_category'], 0, 4 )=='Rice' )
-				{
-					$_hasrice = true;
-				}
-				elseif(substr( $item['item_category'], 0, 12 )=='Control Item' )
-				{
-					$_hasCI = true;
-				}
-			}
-			
-		?>
+
 	<div id="receipt_general_info">
 		<?php
 		if(isset($customer))
 		{
-			$nm = !$_hasrice? $customer : "Walk-in";
-			$nm = !$_hasCI? $nm : $tax_id;
 		?>
-			<div id="customer"><?php echo $this->lang->line('customers_customer').": ".$nm; ?></div>
+			<div id="customer"><?php echo $this->lang->line('customers_customer').": ".$customer; ?></div>
 		<?php
 		}
 		?>
@@ -241,6 +224,164 @@
 	</div>-->
 </div>
 
+// rice
+<form>
+	<table id="receipt_items">
+		<tr>
+			<th style="width:50%;"><?php echo $this->lang->line('sales_description_abbrv'); ?></th>
+			<th style="width:25%;"><?php echo $this->lang->line('sales_quantity'); ?></th>
+			<th colspan="4" style="width:25%;" class="total-value"><?php echo $this->lang->line('sales_total'); ?></th>
+		</tr>
+		<?php
+		//muru add line item and qty count
+		$count_items = 0;
+		$count_qty = 0;
+		//muru add line item and qty count end
+		foreach($cart as $line=>$item)
+		{
+		//muru add line item and qty count
+		$count_items++;
+		$count_qty = $count_qty + $item['quantity'];
+		//muru add line item and qty count end
+		if( $item['category'] == 'Rice' )
+		{
+		?>
+			<tr>
+				<td><?php echo ucfirst($item['name'] . ' ' . $item['attribute_values']); ?></td>
+				<!-- muru show unit price-->
+				<!-- original <td><?php //echo to_quantity_decimals($item['quantity']); ?></td> -->
+				<!-- <td class="total-value"><?php //echo to_currency($item[($this->config->item('receipt_show_total_discount') ? 'total' : 'discounted_total')]); ?></td> -->
+				<td><?php echo to_quantity_decimals($item['quantity']).' x '.to_currency($item['price']); ?></td>				
+				<td class="total-value" style="font-weight: bold;" ><?php echo to_currency($item[($this->config->item('receipt_show_total_discount') ? 'total' : 'discounted_total')]); ?></td>
+				<!-- muru show unit price-->
+			</tr>
+			<tr>
+				<?php
+				if($this->config->item('receipt_show_description'))
+				{
+				?>
+					<td colspan="2"><?php echo $item['description']; ?></td>
+				<?php
+				}
+				?>
+				<?php
+				if($this->config->item('receipt_show_serialnumber'))
+				{
+				?>
+					<td><?php echo $item['serialnumber']; ?></td>
+				<?php
+				}
+				?>
+			</tr>
+			<?php
+			if($item['discount'] > 0)
+			{
+			?>
+				<tr>
+					<?php
+					if($item['discount_type'] == FIXED)
+					{
+					?>
+						<td colspan="3" class="discount"><?php echo to_currency($item['discount']) . " " . $this->lang->line("sales_discount") ?></td>
+					<?php
+					}
+					elseif($item['discount_type'] == PERCENT)
+					{
+					?>
+						<td colspan="3" class="discount"><?php echo number_format($item['discount'], 0) . " " . $this->lang->line("sales_discount_included") ?></td>
+					<?php
+					}	
+					?>
+					<td class="total-value"><?php echo to_currency($item['discounted_total']); ?></td>
+				</tr>
+			<?php
+			}
+			?>
 
-<div class="page-break"></div>
+		<?php
+		}
+		?>
 
+		<?php
+		if($this->config->item('receipt_show_total_discount') && $discount > 0)
+		{
+		?>
+			<tr>
+				<td colspan="2" style='text-align:right;border-top:2px solid #000000;'><?php echo $this->lang->line('sales_sub_total'); ?></td>
+				<td style='text-align:right;border-top:2px solid #000000;'><?php echo to_currency($subtotal); ?></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="total-value"><?php echo $this->lang->line('sales_discount'); ?>:</td>
+				<td class="total-value"><?php echo to_currency($discount * -1); ?></td>
+			</tr>
+		<?php
+		}
+		?>
+
+		<?php
+		if($this->config->item('receipt_show_taxes'))
+		{
+		?>
+			<tr>
+				<td colspan="2" style='text-align:right;border-top:2px solid #000000;'><?php echo $this->lang->line('sales_sub_total'); ?></td>
+				<td style='text-align:right;border-top:2px solid #000000;'><?php echo to_currency($subtotal); ?></td>
+			</tr>
+			<?php
+			foreach($taxes as $tax_group_index=>$tax)
+			{
+			?>
+				<tr>
+					<td colspan="2" class="total-value"><?php echo (float)$tax['tax_rate'] . '% ' . $tax['tax_group']; ?>:</td>
+					<td class="total-value"><?php echo to_currency_tax($tax['sale_tax_amount']); ?></td>
+				</tr>
+			<?php
+			}
+			?>
+		<?php
+		}
+		?>
+
+		<tr>
+		</tr>
+		<? } ?>
+		<?php $border = (!$this->config->item('receipt_show_taxes') && !($this->config->item('receipt_show_total_discount') && $discount > 0)); ?>
+		<tr>
+			<td colspan="2" style="text-align:right;<?php echo $border? 'border-top: 2px solid black;' :''; ?>"><?php echo $this->lang->line('sales_total'); ?></td>
+			<td style="text-align:right;font-size:14px;<?php echo $border? 'border-top: 2px solid black;' :''; ?>"><b><?php echo to_currency($total); ?></b></td>
+		</tr>
+
+
+		<?php
+		$only_sale_check = FALSE;
+		$show_giftcard_remainder = FALSE;
+		foreach($payments as $payment_id=>$payment)
+		{
+			$only_sale_check |= $payment['payment_type'] == $this->lang->line('sales_check');
+			$splitpayment = explode(':', $payment['payment_type']);
+			$show_giftcard_remainder |= $splitpayment[0] == $this->lang->line('sales_giftcard');
+		?>
+			<tr>
+				<td colspan="2" style="text-align:right;"><?php echo $splitpayment[0]; ?> </td>
+				<td class="total-value"><?php echo to_currency( $payment['payment_amount'] * -1 ); ?></td>
+			</tr>
+		<?php
+		}
+		?>
+
+		<?php
+		if(isset($cur_giftcard_value) && $show_giftcard_remainder)
+		{
+		?>
+		<tr>
+			<td colspan="2" style="text-align:right;"><?php echo $this->lang->line('sales_giftcard_balance'); ?></td>
+			<td class="total-value"><?php echo to_currency($cur_giftcard_value); ?></td>
+		</tr>
+		<?php
+		}
+		?>
+		<tr>
+			<td colspan="2" style="text-align:right;"> <?php echo $this->lang->line($amount_change >= 0 ? ($only_sale_check ? 'sales_check_balance' : 'sales_change_due') : 'sales_amount_due') ; ?> </td>
+			<td class="total-value"><?php echo to_currency($amount_change); ?></td>
+		</tr>
+	</table>
+</form>

@@ -140,6 +140,7 @@ if(isset($success))
 								<?php echo anchor($controller_name . "/delete_item/$line", '<span class="glyphicon glyphicon-trash"></span>'); ?>
 								<?php echo form_hidden('location', $item['item_location']); ?>
 								<?php echo form_input(array('type'=>'hidden', 'name'=>'item_id', 'value'=>$item['item_id'])); ?>
+								<?php echo anchor_popup("http://".$_SERVER['HTTP_HOST']."/report/pricebyid/index.php?i_name=".$item['item_id']."&fname=".$customer_id, '<span class="glyphicon glyphicon-asterisk"></span>'); ?>
 							</td>
 							<?php
 							if($item['item_type'] == ITEM_TEMP)
@@ -154,7 +155,7 @@ if(isset($success))
 							else
 							{
 							?>
-								<td><?php echo $item['item_number']; ?></td>
+								<td><?php echo $item['item_number']."!7H".str_replace(".","",$item['unit_price'])."!8E".str_replace(".","",to_currency_no_money($item['last_given_price']))."!9F".str_replace(".","",$item['cost_price']); ?></td>
 								<td style="align: center;">
 									<?php echo $item['name'] . ' '. implode(' ', array($item['attribute_values'], $item['attribute_dtvalues'])); ?>
 									<br/>
@@ -164,24 +165,37 @@ if(isset($success))
 							}
 							?>
 							<?php
+							$co = "";
+							if( $item['cost_price']>$item['price'] )
+							{$co = "pink"; }
+							elseif($item['unit_price'] != $item['price'])
+							{$co="yellow";}
+							if($item['last_given_price']>0 && $item['last_given_price'] != $item['price'])
+							{$co="cyan";}
+
+							$coq = "";
+							if( $item['quantity'] == 0)
+							{$coq="red";}
 							if($items_module_allowed)
 							{
 							?>
-								<td><?php echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));?></td>
+								<td style="background-color:<?PHP echo $co; ?>">						
+								<?php echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));?></td>
 							<?php
 							}
 							else
 							{
 							?>
-								<td>
+								<td style="background-color:<?PHP echo $co; ?>">
 									<?php echo to_currency($item['price']); ?>
 									<?php echo form_hidden('price', to_currency_no_money($item['price'])); ?>
 								</td>
 							<?php
 							}
 							?>
-
-							<td>
+						
+							<td style="background-color:<?PHP echo $coq; ?>">
+								
 								<?php
 								if($item['is_serialized']==1)
 								{

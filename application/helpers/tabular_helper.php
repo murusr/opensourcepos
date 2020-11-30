@@ -334,19 +334,28 @@ function get_items_manage_table_headers()
 		array('item_number' => $CI->lang->line('items_item_number')),
 		array('name' => $CI->lang->line('items_name')),
 		array('category' => $CI->lang->line('items_category')),
-		array('company_name' => $CI->lang->line('suppliers_company_name')),
-		array('cost_price' => $CI->lang->line('items_cost_price')),
+		//array('company_name' => $CI->lang->line('suppliers_company_name')),
+		//muru
+		//array('cost_price' => $CI->lang->line('items_cost_price')),
 		array('unit_price' => $CI->lang->line('items_unit_price')),
 		array('quantity' => $CI->lang->line('items_quantity'))
 	);
 
+	//muru 
+	if($CI->session->userdata('person_id') != 458)
+	{
+		$headers[] = array('cost_price' => $CI->lang->line('items_cost_price'));
+	}
+
 	if($CI->config->item('use_destination_based_tax') == '1')
 	{
-		$headers[] = array('tax_percents' => $CI->lang->line('items_tax_category'), 'sortable' => FALSE);
+		//muru
+		//$headers[] = array('tax_percents' => $CI->lang->line('items_tax_category'), 'sortable' => FALSE);
 	}
 	else
 	{
-		$headers[] = array('tax_percents' => $CI->lang->line('items_tax_percents'), 'sortable' => FALSE);
+		//muru
+		//$headers[] = array('tax_percents' => $CI->lang->line('items_tax_percents'), 'sortable' => FALSE);
 
 	}
 
@@ -359,6 +368,10 @@ function get_items_manage_table_headers()
 
 	$headers[] = array('inventory' => '');
 	$headers[] = array('stock' => '');
+	//Muru
+	$headers[] = array('sh' => '');
+	$headers[] = array('ph' => '');
+	//muru end
 
 	return transform_headers($headers);
 }
@@ -445,10 +458,25 @@ function get_item_data_row($item)
 		'stock' => anchor($controller_name."/count_details/$item->item_id", '<span class="glyphicon glyphicon-list-alt"></span>',
 			array('class' => 'modal-dlg', 'title' => $CI->lang->line($controller_name.'_details_count'))
 		),
-		'edit' => anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-edit"></span>',
+		/*'edit' => anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-edit"></span>',
+			array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
+		),*/
+		//Muru
+		'sh' => anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-arrow-up"></span>',
+			array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
+		)
+		,
+		'ph' => anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-arrow-down"></span>',
 			array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
 		)
 	);
+
+	//muru
+	//if($CI->session->userdata('person_id') != 458)
+	{
+		$icons['edit'] = anchor($controller_name."/view/$item->item_id", '<span class="glyphicon glyphicon-edit"></span>',
+		array('class' => 'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update')));
+	}
 
 	return $columns + expand_attribute_values($definition_names, (array) $item) + $icons;
 

@@ -725,6 +725,11 @@ class Sale_lib
 		$item_type = $item_info->item_type;
 		$stock_type = $item_info->stock_type;
 
+		//muru
+		$lastgivenprice = 0.00;
+		$item_category = $item_info->category;
+
+		
 		if($price_mode == PRICE_MODE_STANDARD)
 		{
 			$price = $item_info->unit_price;
@@ -835,6 +840,16 @@ class Sale_lib
 
 		$attribute_links = $this->CI->Attribute->get_link_values($item_id, 'sale_id', $sale_id, Attribute::SHOW_IN_SALES)->row_object();
 
+		//$lastgivenprice = $price;
+		$customer_id = $this->get_customer();
+		if( $customer_id > 0 )
+		{
+			$lastsaleitem = $this->CI->Sale->get_sale_items_by_customer_item($customer_id,$item_id);
+			foreach ($lastsaleitem->result() as $row)
+			{
+				$lastgivenprice = $row->si_unit_price;
+			}
+		}
 	//Item already exists and is not serialized, add to quantity
 		if(!$itemalreadyinsale || $item_info->is_serialized)
 		{
@@ -863,7 +878,12 @@ class Sale_lib
 					'stock_type' => $stock_type,
 					'item_type' => $item_type,
 					'hsn_code' => $item_info->hsn_code,
-					'tax_category_id' => $item_info->tax_category_id
+					'tax_category_id' => $item_info->tax_category_id,
+					//muru 200218
+					'unit_price' => $item_info->unit_price,
+					'last_given_price' => $lastgivenprice,
+					'item_category' => $item_category
+					
 				)
 			);
 			//add to existing array
@@ -1020,7 +1040,9 @@ class Sale_lib
 	{
 		$this->empty_cart();
 		$this->remove_customer();
-
+		
+		$this->set_customer($this->CI->Sale->get_customer($sale_id)->person_id);
+		
 		foreach($this->CI->Sale->get_sale_items_ordered($sale_id)->result() as $row)
 		{
 			$this->add_item($row->item_id, $row->quantity_purchased, $row->item_location, $row->discount, $row->discount_type, PRICE_MODE_STANDARD, NULL, NULL, $row->item_unit_price, $row->description, $row->serialnumber, $sale_id, TRUE, $row->print_option);
@@ -1031,7 +1053,7 @@ class Sale_lib
 			$this->add_payment($row->payment_type, $row->payment_amount);
 		}
 
-		$this->set_customer($this->CI->Sale->get_customer($sale_id)->person_id);
+		
 		$this->set_employee($this->CI->Sale->get_employee($sale_id)->person_id);
 		$this->set_quote_number($this->CI->Sale->get_quote_number($sale_id));
 		$this->set_work_order_number($this->CI->Sale->get_work_order_number($sale_id));

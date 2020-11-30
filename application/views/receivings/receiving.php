@@ -104,8 +104,11 @@ if (isset($success))
 			<tr>
 				<th style="width:5%;"><?php echo $this->lang->line('common_delete'); ?></th>
 				<th style="width:15%;"><?php echo $this->lang->line('sales_item_number'); ?></th>
-				<th style="width:23%;"><?php echo $this->lang->line('receivings_item_name'); ?></th>
+				<th style="width:13%;"><?php echo $this->lang->line('receivings_item_name'); ?></th>
 				<th style="width:10%;"><?php echo $this->lang->line('receivings_cost'); ?></th>
+				<!--muru-->
+				<th style="width:10%;"><?php echo $this->lang->line('unit_price'); ?></th>
+				<!--muru-->
 				<th style="width:8%;"><?php echo $this->lang->line('receivings_quantity'); ?></th>
 				<th style="width:10%;"><?php echo $this->lang->line('receivings_ship_pack'); ?></th>
 				<th style="width:14%;"><?php echo $this->lang->line('receivings_discount'); ?></th>
@@ -120,7 +123,7 @@ if (isset($success))
 			{
 			?>
 				<tr>
-					<td colspan='9'>
+					<td colspan='10'>
 						<div class='alert alert-dismissible alert-info'><?php echo $this->lang->line('sales_no_items_in_cart'); ?></div>
 					</td>
 				</tr>
@@ -157,7 +160,7 @@ if (isset($success))
 							<?php
 							}
 							?>
-							
+							<td><?php echo form_input(array('name'=>'unit_price', 'class'=>'form-control input-sm', 'value'=>to_currency_no_money($item['unit_price']))); ?></td>
 							<td><?php echo form_input(array('name'=>'quantity', 'class'=>'form-control input-sm', 'value'=>to_quantity_decimals($item['quantity']))); ?></td>
 							<td><?php echo form_dropdown('receiving_quantity', $item['receiving_quantity_choices'], $item['receiving_quantity'], array('class'=>'form-control input-sm'));?></td>
 
@@ -217,7 +220,7 @@ if (isset($success))
 								}
 								?>
 							</td>
-							<td colspan='7'></td>
+							<td colspan='8'></td>
 						</tr>
 					<?php echo form_close(); ?>
 			<?php
@@ -513,7 +516,7 @@ $(document).ready(function()
 		}
 	}
 
-	$('[name="price"],[name="quantity"],[name="receiving_quantity"],[name="discount"],[name="description"],[name="serialnumber"]').change(function() {
+	$('[name="unit_price"],[name="price"],[name="quantity"],[name="receiving_quantity"],[name="discount"],[name="description"],[name="serialnumber"]').change(function() {
 		$(this).parents("tr").prevAll("form:first").submit()
 	});
 

@@ -93,6 +93,26 @@
 		}
 		echo form_hidden('number_of_payments', $i);			
 		?>
+		<!--Muru add partial payment -->
+		<!--Muru add partial payment<div class="form-group form-group-sm">
+				<?php //echo form_label($this->lang->line('sales_payment'), 'payment_'.$i+1, array('class'=>'control-label col-xs-3')); ?>
+				<div class='col-xs-4'>
+						<?php // no editing of Gift Card payments as it's a complex change ?>
+						<?php //echo form_hidden('payment_id_'.$i+1, $row->payment_id); ?>
+						<?php //echo form_dropdown('payment_type_'.$i+1, $payment_options, 'Cash', array('id'=>'payment_types_'.$i, 'class'=>'form-control')); ?>
+				</div>
+				<div class='col-xs-4'>
+					<div class="input-group input-group-sm">
+						<?php //if(!currency_side()): ?>
+							<span class="input-group-addon input-sm"><b><?php //echo $this->config->item('currency_symbol'); ?></b></span>
+						<?php //endif; ?>
+						<?php //echo form_input(array('name'=>'payment_amount_'.$i, 'value'=>0, 'id'=>'payment_amount_'.$i+1, 'class'=>'form-control input-sm'));?>
+						<?php //if (currency_side()): ?>
+							<span class="input-group-addon input-sm"><b><?php //echo $this->config->item('currency_symbol'); ?></b></span>
+						<?php //endif; ?>
+					</div>
+				</div>
+			</div> -->
 		
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('sales_customer'), 'customer', array('class'=>'control-label col-xs-3')); ?>

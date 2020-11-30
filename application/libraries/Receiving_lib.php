@@ -251,6 +251,7 @@ class Receiving_lib
 				'discount_type' => $discount_type,
 				'in_stock' => $this->CI->Item_quantity->get_item_quantity($item_id, $item_location)->quantity,
 				'price' => $price,
+				'unit_price' => $item_info->unit_price,
 				'receiving_quantity' => $receiving_quantity,
 				'receiving_quantity_choices' => $receiving_quantity_choices,
 				'total' => $this->get_item_total($quantity, $price, $discount, $discount_type, $receiving_quantity)
@@ -274,7 +275,7 @@ class Receiving_lib
 		return TRUE;
 	}
 
-	public function edit_item($line, $description, $serialnumber, $quantity, $discount, $discount_type, $price, $receiving_quantity)
+	public function edit_item($line, $description, $serialnumber, $quantity, $discount, $discount_type, $price, $receiving_quantity,$unit_price)
 	{
 		$items = $this->get_cart();
 		if(isset($items[$line]))
@@ -290,6 +291,8 @@ class Receiving_lib
 				$line['discount_type'] = $discount_type;
 			}
 			$line['price'] = $price;
+			//muru
+			$line['unit_price'] = $unit_price;
 			$line['total'] = $this->get_item_total($quantity, $price, $discount, $discount_type, $receiving_quantity);
 			$this->set_cart($items);
 		}

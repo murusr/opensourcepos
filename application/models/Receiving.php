@@ -107,7 +107,11 @@ class Receiving extends CI_Model
 			// update cost price, if changed AND is set in config as wanted
 			if($cur_item_info->cost_price != $item['price'] && $this->config->item('receiving_calculate_average_price') != FALSE)
 			{
-				$this->Item->change_cost_price($item['item_id'], $items_received, $item['price'], $cur_item_info->cost_price);
+				//muru costprice to consider the discount
+				$cost_price = (($item['quantity']*$item['price']) * (1-(($item['discount_type']==0?$item['discount']:0)/100))-($item['discount_type']==1?$item['discount']:0))/$item['quantity']; 
+				$this->Item->change_cost_price($item['item_id'], $items_received, $cost_price, $cur_item_info->cost_price);
+				//muru
+				$this->Item->change_unit_price($item['item_id'], $items_received, $item['unit_price']);
 			}
 
 			//Update stock quantity

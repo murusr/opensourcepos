@@ -71,8 +71,9 @@ class Barcode_lib
 				}
 			}
 		}
-
-		$quantity = 1;
+		//muru original
+		//$quantity = 1;
+		$quantity = 0;
 	}
 
 	public function validate_barcode($barcode)

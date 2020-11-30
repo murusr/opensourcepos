@@ -32,6 +32,15 @@ define('NAME_SEPARATOR', ' | ');
 
 class Item extends CI_Model
 {
+	/**
+	 * Muru Gets kpdn stock items  Get_control_items
+	 */
+	public function get_control_items()
+	{
+		$query =  $this->db->query("CALL Get_control_items()");
+
+		return $query->result();
+    }
 	/*
 	Determines if a given item_id is an item
 	*/
@@ -941,6 +950,16 @@ class Item extends CI_Model
 		return $this->db->get();
 	}
 
+	//muru update unit price on receiving
+	public function change_unit_price($item_id, $items_received, $new_price)
+	{
+		$item_info = $this->get_info($item_id);				
+		
+		$data = array('unit_price' => $new_price );
+		
+		return $this->save($data, $item_id);
+		
+	}
 	/*
 	 * changes the cost price of a given item
 	 * calculates the average price between received items and items on stock
@@ -955,12 +974,33 @@ class Item extends CI_Model
 	 */
 	public function change_cost_price($item_id, $items_received, $new_price, $old_price = NULL)
 	{
+		//muru update unit price begin
+		$item_info = $this->get_info($item_id);
+		$old_unit_price = $item_info->unit_price;
+		$new_unit_price = $old_unit_price;
+		//muru update unit price end
+		
 		if($old_price === NULL)
 		{
+			//muru update unit price begin
+			//$item_info = $this->get_info($item_id);  <--original
+			//muru update unit price end
 			$item_info = $this->get_info($item_id);
 			$old_price = $item_info->cost_price;
 		}
-
+		
+		//muru update unit price begin
+		if( $old_price != $new_price && $old_price > 0 )
+		{
+			$old_diff = max($old_unit_price - $old_price , 0 );
+			$new_unit_price = $new_price+$old_diff;
+		}
+		else if ( $old_price == 0 )
+		{
+			$new_unit_price = $new_price + ( $new_price * 0.1 );
+		}
+		//muru update unit price end
+		
 		$this->db->from('item_quantities');
 		$this->db->select_sum('quantity');
 		$this->db->where('item_id', $item_id);
@@ -968,10 +1008,18 @@ class Item extends CI_Model
 		$this->db->where('stock_locations.deleted', 0);
 		$old_total_quantity = $this->db->get()->row()->quantity;
 
-		$total_quantity = $old_total_quantity + $items_received;
-		$average_price = bcdiv(bcadd(bcmul($items_received, $new_price), bcmul($old_total_quantity, $old_price)), $total_quantity);
+		
+		//muru old
+		//$total_quantity = $old_total_quantity + $items_received;
+		//$average_price = bcdiv(bcadd(bcmul($items_received, $new_price), bcmul($old_total_quantity, $old_price)), $total_quantity);
+		$total_quantity = max($old_total_quantity,0 ) + $items_received;
+		$average_price = bcdiv(bcadd(bcmul($items_received, $new_price), bcmul(max($old_total_quantity,0 ), $old_price)), $total_quantity);
 
-		$data = array('cost_price' => $average_price);
+		//muru change new price as wholesale price begin
+		//$data = array('cost_price' => $average_price);   <--original
+		//$data = array('cost_price' => $new_price, 'unit_price' => $new_unit_price );
+		$data = array('cost_price' => $new_price );
+		//muru change new price as wholesale price end
 
 		return $this->save($data, $item_id);
 	}

@@ -8,6 +8,7 @@ $lang["receivings_confirm_cancel_receiving"] = "Are you sure you want to clear t
 $lang["receivings_confirm_delete"] = "Are you sure you want to delete this receiving? This action cannot be undone.";
 $lang["receivings_confirm_finish_receiving"] = "Are you sure you want to submit this receiving? This cannot be undone.";
 $lang["receivings_cost"] = "Cost";
+/*muru*/$lang["unit_price"] = "Price";
 $lang["receivings_date"] = "Receiving Date";
 $lang["receivings_date_required"] = "A correct date must be entered.";
 $lang["receivings_date_type"] = "Date is a required field.";

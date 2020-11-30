@@ -904,6 +904,102 @@ class Sale extends CI_Model
 	}
 
 	/**
+	 * Muru Gets kpdn stock items  Get_control_items
+	 */
+	public function get_control_items($category='All')
+	{
+		$wherein = false;
+		$this->db->from('items');
+		if($category == "All" || $category =="cooking oil")
+		{
+			$this->db->where('category', 'Control ItemM$');
+			$wherein = true;
+		}
+		if( $category == "All" || $category =="Sugar")
+		{
+			if( $wherein)
+			{
+				$this->db->or_where('category', 'Control ItemG$');
+			}
+			else
+			{
+				$this->db->where('category', 'Control ItemG$');
+				$wherein = true;
+			}
+		}
+		if( $category == "All" || $category =="Gandum" )	
+		{
+			if( $wherein )
+			{
+				$this->db->or_where('category', 'Control ItemT$');
+			}
+			else
+			{
+				$this->db->where('category', 'Control ItemT$');
+			}
+		}
+
+		return $this->db->get()->result();
+    }
+	public function get_kpdn($cat,$it='All',$from=NULL,$to=NULL)
+	{
+		$q = "CALL kpdn_stock(?,?,?,?)";
+		//echo $from;
+		$query =  $this->db->query($q,array('cat'=>$cat,'it'=>$it,'_from'=>$from, '_to'=>$to));
+
+		return $query->result();
+    }
+	
+	/**
+	 * Muru Gets last sale item by customer and item
+	 */
+	public function get_sale_items_by_customer_item($customer_id,$item_id)
+	{
+		return $this->db->query("select ospos_sales_items.sale_id,
+		ospos_sales_items.item_id,
+		ospos_sales_items.description,
+		ospos_sales_items.item_unit_price as si_unit_price,
+		ospos_sales_items.item_cost_price as si_cost_price,
+		ospos_items.cost_price,
+		ospos_items.category,
+		ospos_items.unit_price from ospos_sales_items
+		left outer join ospos_sales on (ospos_sales_items.sale_id = ospos_sales.sale_id)
+		left outer join ospos_items on (ospos_sales_items.item_id = ospos_items.item_id)
+		where ospos_sales.customer_id=$customer_id and ospos_sales_items.item_id= $item_id and ospos_sales.sale_status=0
+		order by  ospos_sales.sale_id desc limit 1 ");
+		/*$this->db->select('
+			sales_items.sale_id,
+			sales_items.item_id,
+			sales_items.description,
+			sales_items.item_unit_price as si_unit_price,
+			sales_items.item_cost_price as si_cost_price,
+			items.cost_price,
+			items.unit_price');
+	
+		$this->db->from('sales_items AS sales_items');
+		$this->db->join('sales','sales_items.sale_id = sales.sale_id', 'left');
+		$this->db->join('items','sales_items.item_id = items.item_id', 'left');
+		$this->db->where('customer_id', $customer_id);
+		$this->db->where('sales_items.item_id', $item_id);
+		$this->db->order_by('sales.sale_id','desc');
+
+		//seect top 1
+		//if($rows > 0)
+		//{
+			$this->db->limit(1, 0);
+		//}
+		//$sql = $this->db->get_compiled_select('sales_items');
+		//echo $sql;
+		
+		/*$this->db->from('sales AS sales');
+		$sql = $this->db->get_compiled_select('sales');
+		echo $sql;*/
+
+		//return $this->db->get();
+	}
+	//muru end get last sale item price
+
+	/**
 	 * Used by the invoice and receipt programs
 	 */
 	public function get_sale_items_ordered($sale_id)
